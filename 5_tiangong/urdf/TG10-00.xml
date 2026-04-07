@@ -1,0 +1,115 @@
+<mujoco model="TG10-00-ankle">
+  <compiler angle="radian" meshdir="../meshes/"/>
+  <option timestep='0.0005' iterations='50' solver='PGS' gravity='0 0 -9.81'/>
+  
+  <default>
+    <joint limited='true'  />
+    <motor ctrllimited='true'/>
+    <geom contype='0' conaffinity='0' condim='1' solref='0.005 1'/>
+    <equality solref='0.001 1'/>
+    <default class='cassie'>
+      <geom material='cassie'/>
+    </default> 
+  </default>
+
+  <!-- <default>
+    <joint damping="0.05" armature=" 0.01" frictionloss="0.7"/>
+  </default> -->
+
+  <asset>
+    <texture type='skybox' builtin='gradient' width='128' height='128' rgb1='0.4 0.6 0.8' rgb2='0 0 0'/>
+    <texture name='plane' type='2d' builtin='checker' rgb1='0.2 0.2 0.2' rgb2='0.3 0.3 0.3' width='512' height='512'/>
+    <material name='plane' reflectance='0.0' texture='plane' texrepeat='1 1' texuniform='true'/>
+    <material name='cassie'    rgba='0.9 0.5 0.1 1'/>
+    <material name='collision' rgba='0.1 0.5 0.9 0'/>
+    <material name='obstacle'  rgba='0.2 0.6 0.2 1'/>
+    <mesh name="base_link" file="base_link.STL"/>
+    <mesh name="pitch_link" file="pl.STL"/>
+    <mesh name="foot_link" file="fl.STL"/>
+    <mesh name="leftlgl" file="leftlgl.STL"/>
+    <mesh name="rlgl" file="rlgl.STL"/>
+    <mesh name="ltl" file="ltl.STL"/>
+    <mesh name="tlgl" file="tlgl.STL"/>
+    <mesh name="rtl" file="rtl.STL"/>
+    <mesh name="rtll" file="rtll.STL"/>
+    <!-- === 通用物体颜色 === -->
+    <material name="slate_grey" rgba="0.4 0.5 0.6 1.0"/>
+    <material name="off_white" rgba="0.9 0.9 0.95 1.0"/>
+    <material name="target_orange" rgba="0.9 0.5 0.1 1.0"/>
+    
+    <!-- === 机器人专用颜色 (分层设计) === -->
+    <!-- 主体：深灰色，显得稳重 -->
+    <material name="robot_base" rgba="0.2 0.2 0.25 1.0"/>
+    <!-- 连杆：浅银色，模拟金属 -->
+    <material name="robot_link" rgba="0.75 0.75 0.8 1.0"/>
+    <!-- 关节：蓝色，突出活动部件 -->
+    <material name="robot_joint" rgba="0.1 0.45 0.8 1.0"/>
+    <!-- 末端执行器：红色，醒目 -->
+    <material name="robot_ee" rgba="0.9 0.5 0.1 1.0"/>
+  </asset>
+  
+  <worldbody>
+    <body name="base_link"  pos='0 0 0.15' childclass='cassie'>
+      <inertial pos="-6.6183e-06 2.4283e-06 0.17237" quat="0.698883 0.107613 0.107687 0.698846" mass="0.092687" diaginertia="4.1362e-05 2.2761e-05 2.2386e-05"/>
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0"  mesh="base_link"  material="robot_link"/>
+      <!-- <geom type="mesh"  mesh="base_link"/> -->
+      <body name="pitch_link">
+        <inertial pos="-1.0151e-07 4.0306e-09 0" quat="0.499998 0.500002 -0.500002 0.499998" mass="0.019298" diaginertia="5.1065e-06 2.9238e-06 2.9238e-06"/>
+        <joint name="pitch_joint" pos="0 0 0" axis="0 1 0"  range='-2 2'/>
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0"  mesh="pitch_link" material="robot_base" />
+        <!-- <geom type="mesh"  mesh="pitch_link"/> -->
+        <body name="foot_link">
+          <inertial pos="0.010148 -1.2881e-06 -0.032832" quat="-0.000195283 0.661545 -0.000188286 0.749906" mass="0.27084" diaginertia="0.00118792 0.0010922 0.000241367"/>
+          <joint name="roll_joint" pos="0 0 0" axis="1 0 0"  range='-2 2'/>
+          <geom type="mesh" contype="0" conaffinity="0" group="1" density="0"  mesh="foot_link"  material="robot_ee"/>
+          <!-- <geom type="mesh"  mesh="foot_link"/> -->
+          <body name="left_connect_link" pos="-0.055821 0.04325 0.022">
+            <inertial pos="6.4982e-06 -0.00011797 0.1075" quat="0.725556 3.54583e-06 -4.78696e-06 0.688163" mass="0.019982" diaginertia="0.000100651 0.000100379 4.7202e-07"/>
+            <joint name="left_connect_joint" pos="0 0 0" type="ball"/>
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0"  mesh="leftlgl"  material="slate_grey"/>
+            <!-- <geom type="mesh"  mesh="leftlgl"/> -->
+          </body>
+          <body name="right_connect_link" pos="-0.055821 -0.04325 0.022">
+            <inertial pos="-4.4687e-06 0.0001703 0.07" quat="0.71645 1.37958e-05 -1.41678e-05 0.697639" mass="0.01393" diaginertia="3.31522e-05 3.29018e-05 3.8676e-07"/>
+            <joint name="right_connect_joint" pos="0 0 0" type="ball"/>
+            <geom type="mesh" contype="0" conaffinity="0" group="1" density="0"  mesh="rlgl"  material="slate_grey"/>
+            <!-- <geom type="mesh"  mesh="rlgl"/> -->
+          </body>
+        </body>
+      </body>
+      <body name="left_motor_link" pos="0 0.043252 0.215" quat="0.982434 0 0.18661 0">
+        <inertial pos="-0.020629 -0.0097268 4.2927e-08" quat="0.481752 0.481753 0.517602 0.517607" mass="0.016888" diaginertia="1.2629e-05 1.1261e-05 1.72441e-06"/>
+        <joint name="left_motor_joint" pos="0 0 0" axis="0 1 0"  range='-1.2 1.2' damping='0.5' armature='0.001'/>
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0"  mesh="ltl"  material="robot_joint"/>
+        <!-- <geom type="mesh"  mesh="ltl"/> -->
+      </body>
+      <body name="right_motor_link" pos="0 -0.043247 0.14" quat="0.982434 0 0.18661 0">
+        <inertial pos="-0.018975 0.010107 -5.3183e-08" quat="0.513237 0.513242 0.4864 0.486401" mass="0.016207" diaginertia="1.14963e-05 1.0073e-05 1.66389e-06"/>
+        <joint name="right_motor_joint" pos="0 0 0" axis="0 1 0" range='-1.2 1.2' damping='0.5' armature='0.001'/>
+        <geom type="mesh" contype="0" conaffinity="0" group="1" density="0"  mesh="rtl"  material="robot_joint"/>
+        <!-- <geom type="mesh"  mesh="rtl"/> --> 
+      </body>
+    </body>
+  </worldbody>
+
+  <equality>
+      <connect name="c1" body1="right_motor_link" body2="right_connect_link" anchor="-0.06 0 0" />
+      <connect name="c2" body1="left_motor_link" body2="left_connect_link" anchor="-0.06 0 0" />
+  </equality>
+ 
+  <!-- <actuator>
+    <motor name="right_motor_joint" joint="right_motor_joint" ctrlrange="-50 50"/>
+    <motor name="left_motor_joint" joint="left_motor_joint" ctrlrange="-50 50"/> 
+  </actuator> -->
+  <!-- 将 motor 改为 position -->
+  <!-- kp: 比例增益 (刚度)，kv: 微分增益 (阻尼，可选) -->
+  <!-- <actuator> 
+      <position name="pitch" joint="pitch_joint" ctrlrange="-0.87267 0.5236" kp="50" kv='0.5'/>
+      <position name="roll" joint="roll_joint" ctrlrange="-0.4 0.4" kp="50" kv='0.5'/>
+  </actuator> -->
+  <actuator> 
+      <position name="left_motor_joint"  joint="left_motor_joint"  ctrlrange='-1.1 1.1' kp="100" kv='1'/>
+      <position name="right_motor_joint" joint="right_motor_joint" ctrlrange='-1.1 1.1' kp="100" kv='1'/> 
+  </actuator> 
+
+</mujoco>
